@@ -1,0 +1,15 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}", // <-- THIS LINE IS THE KEY TO THE ENTIRE FIX
+  ],
+  theme: {
+    extend: {
+      colors: {
+        navy: '#1A237E',
+      },
+    },
+  },
+  plugins: [],
+}
