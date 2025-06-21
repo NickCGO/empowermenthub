@@ -4,7 +4,6 @@ import { createClient } from '@supabase/supabase-js';
 import multer from 'multer';
 import cors from 'cors';
 
-// ✅ Define the allowed frontend
 const allowedOrigins = ['https://empowermenthub.onrender.com'];
 
 app.use(cors({
@@ -15,7 +14,7 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true,
+  credentials: true
 }));
 
 app.use(express.json());
