@@ -1,9 +1,16 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-js';
-import multer from 'multer';
 import cors from 'cors';
+import multer from 'multer';
+import { createClient } from '@supabase/supabase-js';
 
+dotenv.config();
+
+// ✅ Define app first
+const app = express(); 
+const port = process.env.PORT || 3000;
+
+// ✅ THEN use cors
 const allowedOrigins = ['https://empowermenthub.onrender.com'];
 
 app.use(cors({
@@ -16,6 +23,7 @@ app.use(cors({
   },
   credentials: true
 }));
+
 
 app.use(express.json());
 // --- END OF CORS CONFIGURATION ---
