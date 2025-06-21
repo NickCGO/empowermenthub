@@ -1,36 +1,24 @@
-// =================================================================
-// CEA HUB BACKEND - FINAL, COMPLETE & VERIFIED VERSION
-// =================================================================
-
 import express from 'express';
 import dotenv from 'dotenv';
-import cors from 'cors';
 import { createClient } from '@supabase/supabase-js';
 import multer from 'multer';
+import cors from 'cors';
 
-dotenv.config();
-const app = express();
-const port = process.env.PORT || 3001;
+// ✅ Define the allowed frontend
+const allowedOrigins = ['https://empowermenthub.onrender.com'];
 
-// --- ROBUST CORS CONFIGURATION FOR PRODUCTION ---
-const allowedOrigins = [
-  'http://localhost:5173', // Your local frontend for development
-  'https://cea-hub-frontend.vercel.app' // Your LIVE frontend URL
-];
-
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
-    return callback(null, true);
-  }
-};
+  },
+  credentials: true,
+}));
 
-app.use(cors(corsOptions));
+app.use(express.json());
 // --- END OF CORS CONFIGURATION ---
 app.use(express.json());
 
