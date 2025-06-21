@@ -17,7 +17,7 @@ function AdminSalesPage({ session, userRole, agentInfo, handleLogout }) {
     }
     setLoading(true);
     setError(null);
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     
     try {
       const response = await fetch(`${backendUrl}/api/admin/all-sales`, {
@@ -48,7 +48,7 @@ function AdminSalesPage({ session, userRole, agentInfo, handleLogout }) {
     if (!window.confirm(`Are you sure you want to ${action} this sale?`)) return;
 
     setError(null);
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     try {
       const response = await fetch(`${backendUrl}/api/admin/${endpoint}/${saleId}`, {
         method: 'PUT',

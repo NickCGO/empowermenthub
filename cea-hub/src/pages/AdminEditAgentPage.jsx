@@ -18,7 +18,7 @@ function AdminEditAgentPage({ session, userRole, agentInfo, handleLogout }) {
   useEffect(() => {
     // This function will be called once we have the necessary data
     const fetchAgentDetails = async () => {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+     const backendUrl = import.meta.env.VITE_BACKEND_URL;
       try {
         const response = await fetch(`${backendUrl}/api/admin/get-agent-details/${agentId}`, {
           headers: { 'Authorization': `Bearer ${session.access_token}` },
@@ -59,7 +59,7 @@ function AdminEditAgentPage({ session, userRole, agentInfo, handleLogout }) {
     setSaving(true);
     setError(null);
     setSuccessMessage('');
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     try {
       const response = await fetch(`${backendUrl}/api/admin/update-agent-details/${agentId}`, {
         method: 'PUT',
@@ -79,7 +79,7 @@ function AdminEditAgentPage({ session, userRole, agentInfo, handleLogout }) {
     setSaving(true);
     setError(null);
     setSuccessMessage('');
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     try {
         const response = await fetch(`${backendUrl}/api/admin/update-agent-auth/${agentId}`, {
             method: 'PUT',

@@ -36,7 +36,7 @@ function ProfilePage({ session, userRole, agentInfo, handleLogout }) {
       setLoading(true);
       setError(null);
       setSaveSuccess(false);
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
       try {
         const response = await fetch(`${backendUrl}/api/get-agent-profile`, {
@@ -74,7 +74,7 @@ function ProfilePage({ session, userRole, agentInfo, handleLogout }) {
     setError(null);
     setSaveSuccess(false);
     const agentId = session?.user?.id;
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     try {
       const response = await fetch(`${backendUrl}/api/update-agent-profile/${agentId}`, {
@@ -116,7 +116,7 @@ function ProfilePage({ session, userRole, agentInfo, handleLogout }) {
     }
     setUploading(true);
     setError(null);
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     
     const formData = new FormData();
     formData.append('profileImage', fileToUpload);

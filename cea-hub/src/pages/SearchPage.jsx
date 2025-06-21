@@ -42,7 +42,7 @@ function SearchPage({ session, userRole }) { // Accept the session AND userRole 
      console.log(`Attempting to search for: "${searchTerm}"`); // Log the search query
 
      // === Example fetch call (Uncomment and replace with your actual backend endpoint logic later) ===
-     // const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'; // Get backend URL from env
+     //const backendUrl = import.meta.env.VITE_BACKEND_URL;'; // Get backend URL from env
      // try {
      //    // Make a GET request to your backend, passing the search query as a URL parameter
      //    // Use encodeURIComponent to handle special characters in the query

@@ -20,7 +20,7 @@ function AdminAgentsPage({ session, userRole, agentInfo, handleLogout }) {
 
     setLoading(true);
     setError(null);
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     
     const endpoint = query
       ? `${backendUrl}/api/admin/search-agents?query=${encodeURIComponent(query)}`

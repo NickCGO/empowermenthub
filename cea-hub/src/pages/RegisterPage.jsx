@@ -43,7 +43,7 @@ function RegisterPage() {
       if (!authData.user) throw new Error("Registration failed: No user was created.");
 
       // 2. Call our backend to create the corresponding agent record
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
       const response = await fetch(`${backendUrl}/api/register-agent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

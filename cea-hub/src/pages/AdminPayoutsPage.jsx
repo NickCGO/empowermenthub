@@ -12,7 +12,7 @@ function AdminPayoutsPage({ session, userRole, agentInfo, handleLogout }) {
     if (!session?.access_token) { setLoading(false); setError("Authentication token missing."); return; }
     setLoading(true);
     setError(null);
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     try {
       const response = await fetch(`${backendUrl}/api/admin/all-payouts`, { headers: { 'Authorization': `Bearer ${session.access_token}` } });
       if (!response.ok) throw new Error('Failed to fetch payout requests.');
@@ -27,7 +27,7 @@ function AdminPayoutsPage({ session, userRole, agentInfo, handleLogout }) {
     const action = newStatus === 'approved' ? 'approve' : 'complete';
     if (!window.confirm(`Are you sure you want to ${action} this payout request?`)) return;
     const endpoint = `${action}-payout`;
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     try {
       const response = await fetch(`${backendUrl}/api/admin/${endpoint}/${payoutId}`, {
         method: 'PUT',

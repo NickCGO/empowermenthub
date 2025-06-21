@@ -39,7 +39,7 @@ function DashboardPage({ session, userRole, agentInfo, handleLogout }) {
     
     setLoading(true);
     setError(null);
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     
     try {
       const [salesRes, topPerformersRes] = await Promise.all([
@@ -94,7 +94,7 @@ function DashboardPage({ session, userRole, agentInfo, handleLogout }) {
     }
 
     setPayoutLoading(true);
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     try {
       const response = await fetch(`${backendUrl}/api/request-payout`, {
         method: 'POST',

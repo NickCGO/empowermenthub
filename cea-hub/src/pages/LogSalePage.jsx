@@ -26,7 +26,7 @@ function LogSalePage({ session, userRole, agentInfo, handleLogout }) {
     }
 
     setSubmitting(true);
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     try {
       const response = await fetch(`${backendUrl}/api/log-sale`, {
