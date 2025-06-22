@@ -122,6 +122,7 @@ function DashboardPage({ session, userRole, agentInfo, handleLogout }) {
   };
 
   return (
+    
     <div className="flex flex-col h-screen bg-gray-100">
       <Header session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} />
       <main className="flex-1 p-8 overflow-y-auto">
@@ -154,6 +155,9 @@ function DashboardPage({ session, userRole, agentInfo, handleLogout }) {
                         </td>
                       </tr></tbody>
                     </table>
+                    <div className="overflow-x-auto">
+  {/* Your table or wide content */}
+</div>
                     <div className="mt-6">
                       <h3 className="mb-2 font-semibold text-gray-800 text-md">Your Level: {getUserLevel(mySalesSummary.confirmed_sales)}</h3>
                       <div className="w-full h-2 bg-gray-200 rounded-full"><div className="h-2 rounded-full bg-navy" style={{ width: `${getLevelProgress(mySalesSummary.confirmed_sales)}%` }}></div></div>
