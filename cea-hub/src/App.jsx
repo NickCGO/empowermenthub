@@ -96,7 +96,8 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className="flex flex-col min-h-screen bg-gray-50 md:flex-row">
+
       <Routes>
         <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/" replace />} />
         <Route path="/register" element={!session ? <RegisterPage /> : <Navigate to="/" replace />} />
