@@ -1,3 +1,5 @@
+// cea-hub-backend/index.js
+
 // =========================================================
 //  MODULE IMPORTS (ES Module Syntax)
 // =========================================================
@@ -8,22 +10,12 @@ import cors from 'cors';
 import multer from 'multer';
 
 // =========================================================
-//  CONFIGURATION & DEBUG LOGGING (Can be removed after confirming fix)
+//  APP & DATABASE SETUP
 // =========================================================
-console.log("--- Erudite Backend Service Starting ---");
-console.log(`SUPABASE_URL loaded: ${process.env.SUPABASE_URL ? 'Yes' : 'No'}`);
-console.log(`SERVICE_ROLE_KEY loaded (first 8 chars): ${process.env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 8)}...`);
-console.log(`JWT_SECRET loaded (first 8 chars): ${process.env.JWT_SECRET?.substring(0, 8)}...`);
-console.log("-----------------------------------------");
-// =========================================================
-
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Supabase Client Initialization
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
-
-// Multer setup for file uploads
 const upload = multer({ storage: multer.memoryStorage() });
 
 // =========================================================
@@ -32,7 +24,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // --- CORS Configuration ---
 const allowedOrigins = ['https://empowermenthub.onrender.com', 'http://localhost:5173'];
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -41,43 +33,34 @@ app.use(cors({
     }
   },
   credentials: true,
-  // --- THIS IS THE CRITICAL FIX ---
-  // We must explicitly allow the Authorization header for cross-origin requests.
   allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+};
+
+// --- THIS IS THE CRITICAL FIX ---
+// 1. Handle preflight requests for all routes. This MUST come before other routes.
+app.options('*', cors(corsOptions)); 
+
+// 2. Use the CORS configuration for all subsequent requests.
+app.use(cors(corsOptions));
+// ------------------------------
 
 // --- Body Parser ---
 app.use(express.json());
 
 // --- Authentication Middleware ---
 const getUserFromToken = async (req, res, next) => {
-  try {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-      console.log("Auth Error: No token provided.");
-      return res.status(401).json({ error: 'No token provided.' });
+    try {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) return res.status(401).json({ error: 'No token provided.' });
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        if (error) return res.status(401).json({ error: 'Invalid or expired token.', details: error.message });
+        if (!user) return res.status(401).json({ error: 'User not found for this token.' });
+        req.user = user;
+        next();
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error in auth middleware.' });
     }
-    
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    
-    if (error) {
-      console.log("Supabase auth.getUser error:", error.message);
-      return res.status(401).json({ error: 'Invalid or expired token.', details: error.message });
-    }
-
-    if (!user) {
-        console.log("Auth Error: Token was valid but no user was found.");
-        return res.status(401).json({ error: 'User not found for this token.' });
-    }
-    
-    req.user = user;
-    next();
-  } catch (error) {
-    console.log("CRITICAL Auth Middleware Crash:", error);
-    res.status(500).json({ error: 'Internal server error in auth middleware.' });
-  }
 };
 
 // --- Admin Role Check Middleware ---
