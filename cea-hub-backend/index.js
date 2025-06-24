@@ -1,5 +1,3 @@
-// cea-hub-backend/index.js
-
 // =========================================================
 //  MODULE IMPORTS (ES Module Syntax)
 // =========================================================
@@ -15,7 +13,22 @@ import multer from 'multer';
 const app = express();
 const port = process.env.PORT || 3000;
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+// --- THIS IS THE CRITICAL FIX ---
+// We must initialize the Supabase client with options suitable for a server environment.
+// This tells the client not to use browser-specific features.
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+);
+// ------------------------------
+
+// Multer setup for file uploads
 const upload = multer({ storage: multer.memoryStorage() });
 
 // =========================================================
@@ -36,13 +49,10 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-// --- THIS IS THE CRITICAL FIX ---
-// 1. Handle preflight requests for all routes. This MUST come before other routes.
+// Handle preflight requests for all routes. This MUST come before other routes.
 app.options('*', cors(corsOptions)); 
-
-// 2. Use the CORS configuration for all subsequent requests.
+// Use the CORS configuration for all subsequent requests.
 app.use(cors(corsOptions));
-// ------------------------------
 
 // --- Body Parser ---
 app.use(express.json());
