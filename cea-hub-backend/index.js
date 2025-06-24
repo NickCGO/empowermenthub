@@ -8,15 +8,12 @@ import cors from 'cors';
 import multer from 'multer';
 
 // =========================================================
-//  CONFIGURATION & DEBUG LOGGING
+//  CONFIGURATION & DEBUG LOGGING (Can be removed after confirming fix)
 // =========================================================
 console.log("--- Erudite Backend Service Starting ---");
-
-// Log the first 8 characters of each key to verify they are loaded
 console.log(`SUPABASE_URL loaded: ${process.env.SUPABASE_URL ? 'Yes' : 'No'}`);
 console.log(`SERVICE_ROLE_KEY loaded (first 8 chars): ${process.env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 8)}...`);
 console.log(`JWT_SECRET loaded (first 8 chars): ${process.env.JWT_SECRET?.substring(0, 8)}...`);
-
 console.log("-----------------------------------------");
 // =========================================================
 
@@ -43,13 +40,16 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  // --- THIS IS THE CRITICAL FIX ---
+  // We must explicitly allow the Authorization header for cross-origin requests.
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // --- Body Parser ---
 app.use(express.json());
 
-// --- Authentication Middleware with Enhanced Logging ---
+// --- Authentication Middleware ---
 const getUserFromToken = async (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
@@ -60,7 +60,6 @@ const getUserFromToken = async (req, res, next) => {
       return res.status(401).json({ error: 'No token provided.' });
     }
     
-    // This is the critical step. Let's log the error if it fails.
     const { data: { user }, error } = await supabase.auth.getUser(token);
     
     if (error) {
@@ -345,6 +344,7 @@ adminRouter.get('/search-agents', async (req, res) => {
     res.json(data);
   } catch (error) { res.status(500).json({ error: 'Agent search failed.', details: error.message }); }
 });
+
 
 // =========================================================
 //  SERVER START
