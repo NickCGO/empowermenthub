@@ -3,3 +3,28 @@
 @tailwind utilities;
 
 /* You can add custom global CSS below these lines if you need to, but start with just these three. */
+/* The main container for our custom icon */
+.custom-marker-icon {
+  background-color: white;
+  border: 3px solid #F97316; /* Tailwind's orange-500 */
+  border-radius: 50%; /* Makes it a circle */
+  padding: 3px; /* Creates a small gap between the border and the image */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* The profile picture inside the marker */
+.custom-marker-icon img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover; /* Ensures the image covers the area without distortion */
+}
+
+/* A fallback style for when there's no photo */
+.custom-svg-marker {
+  background: none;
+  border: none;
+}

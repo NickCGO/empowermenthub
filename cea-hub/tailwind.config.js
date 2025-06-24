@@ -2,7 +2,7 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}", // <-- THIS LINE IS THE KEY TO THE ENTIRE FIX
+    "./src/**/*.{js,ts,jsx,tsx}", // Ensure no typos here
   ],
   theme: {
     extend: {

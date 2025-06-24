@@ -1,5 +1,7 @@
+// src/App.jsx
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabaseClient';
 
 // Import all page components
@@ -14,6 +16,7 @@ import AdminAgentsPage from './pages/AdminAgentsPage';
 import AdminSalesPage from './pages/AdminSalesPage';
 import AdminPayoutsPage from './pages/AdminPayoutsPage';
 import AdminEditAgentPage from './pages/AdminEditAgentPage';
+import AgentFinderPage from './pages/AgentFinderPage';
 
 function App() {
   const [session, setSession] = useState(null);
@@ -39,9 +42,7 @@ function App() {
     }
   }, []);
 
-  // --- THIS IS THE FINAL, BULLETPROOF useEffect ---
   useEffect(() => {
-    // 1. Manually check the session on initial load.
     const checkInitialSession = async () => {
       try {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
@@ -52,22 +53,14 @@ function App() {
       } catch (e) {
         console.error("Error during initial session check:", e);
       } finally {
-        // This is guaranteed to run and will solve the stuck loading screen.
         setLoading(false);
       }
     };
-    
     checkInitialSession();
-
-    // 2. Set up the listener for all subsequent auth changes (login/logout).
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        setSession(newSession);
-        fetchUserAndAgentInfo(newSession?.user);
-      }
-    );
-
-    // 3. Cleanup the listener on component unmount.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+      fetchUserAndAgentInfo(newSession?.user);
+    });
     return () => {
       subscription?.unsubscribe();
     };
@@ -77,12 +70,10 @@ function App() {
     await supabase.auth.signOut();
   };
 
-  // This global loading screen will now reliably be removed.
   if (loading) {
     return <div className="flex items-center justify-center h-screen text-xl font-bold bg-gray-100">Loading Application...</div>;
   }
 
-  // Wrapper components for route protection
   const ProtectedRoute = ({ children }) => {
     if (!session) return <Navigate to="/login" replace />;
     return children;
@@ -90,32 +81,40 @@ function App() {
   
   const AdminRoute = ({ children }) => {
     if (!session) return <Navigate to="/login" replace />;
-    // This check now runs after loading is complete, so userRole is reliable.
     if (userRole !== 'admin') return <Navigate to="/" replace />;
     return children;
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 md:flex-row">
+    <BrowserRouter>
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/" replace />} />
+          <Route path="/register" element={!session ? <RegisterPage /> : <Navigate to="/" replace />} />
+          <Route path="/find-agent" element={<AgentFinderPage />} />
 
-      <Routes>
-        <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/" replace />} />
-        <Route path="/register" element={!session ? <RegisterPage /> : <Navigate to="/" replace />} />
-        
-        <Route path="/" element={<ProtectedRoute><DashboardPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></ProtectedRoute>} />
-        <Route path="/log-sale" element={<ProtectedRoute><LogSalePage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></ProtectedRoute>} />
-        <Route path="/search" element={<ProtectedRoute><SearchPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></ProtectedRoute>} />
+          {/* Protected Agent Routes */}
+          <Route path="/" element={<ProtectedRoute><DashboardPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></ProtectedRoute>} />
+          <Route path="/log-sale" element={<ProtectedRoute><LogSalePage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></ProtectedRoute>} />
+          <Route path="/search" element={<ProtectedRoute><SearchPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></ProtectedRoute>} />
 
-        <Route path="/admin" element={<AdminRoute><AdminDashboardPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></AdminRoute>} />
-        <Route path="/admin/agents" element={<AdminRoute><AdminAgentsPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></AdminRoute>} />
-        <Route path="/admin/sales" element={<AdminRoute><AdminSalesPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></AdminRoute>} />
-        <Route path="/admin/payouts" element={<AdminRoute><AdminPayoutsPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></AdminRoute>} />
-        <Route path="/admin/agents/edit/:agentId" element={<AdminRoute><AdminEditAgentPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></AdminRoute>} />
-        
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </div>
+          {/* Protected Admin Routes */}
+          <Route path="/admin" element={<AdminRoute><AdminDashboardPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></AdminRoute>} />
+          
+          {/* THIS IS THE LINE I FIXED */}
+          <Route path="/admin/agents" element={<AdminRoute><AdminAgentsPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></AdminRoute>} />
+
+          <Route path="/admin/sales" element={<AdminRoute><AdminSalesPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></AdminRoute>} />
+          <Route path="/admin/payouts" element={<AdminRoute><AdminPayoutsPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></AdminRoute>} />
+          <Route path="/admin/agents/edit/:agentId" element={<AdminRoute><AdminEditAgentPage session={session} userRole={userRole} agentInfo={agentInfo} handleLogout={handleLogout} /></AdminRoute>} />
+          
+          {/* Fallback Route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
