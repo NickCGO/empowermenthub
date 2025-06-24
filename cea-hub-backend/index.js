@@ -8,14 +8,22 @@ import cors from 'cors';
 import multer from 'multer';
 
 // =========================================================
-//  APP & DATABASE SETUP
+//  CONFIGURATION & DEBUG LOGGING
 // =========================================================
+console.log("--- Erudite Backend Service Starting ---");
+
+// Log the first 8 characters of each key to verify they are loaded
+console.log(`SUPABASE_URL loaded: ${process.env.SUPABASE_URL ? 'Yes' : 'No'}`);
+console.log(`SERVICE_ROLE_KEY loaded (first 8 chars): ${process.env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 8)}...`);
+console.log(`JWT_SECRET loaded (first 8 chars): ${process.env.JWT_SECRET?.substring(0, 8)}...`);
+
+console.log("-----------------------------------------");
+// =========================================================
+
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Supabase Client Initialization
-// IMPORTANT: For admin-level tasks, you use the SERVICE_ROLE_KEY.
-// Be careful with this key as it bypasses RLS.
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 // Multer setup for file uploads
@@ -26,38 +34,49 @@ const upload = multer({ storage: multer.memoryStorage() });
 // =========================================================
 
 // --- CORS Configuration ---
-// This allows your frontend (on Render) to communicate with this backend.
-const allowedOrigins = ['https://empowermenthub.onrender.com', 'http://localhost:5173']; // Added localhost for local dev
+const allowedOrigins = ['https://empowermenthub.onrender.com', 'http://localhost:5173'];
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
-    return callback(null, true);
   },
   credentials: true
 }));
 
 // --- Body Parser ---
-// This allows Express to read JSON from the body of requests.
 app.use(express.json());
 
-// --- Authentication Middleware ---
+// --- Authentication Middleware with Enhanced Logging ---
 const getUserFromToken = async (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'No token provided.' });
+
+    if (!token) {
+      console.log("Auth Error: No token provided.");
+      return res.status(401).json({ error: 'No token provided.' });
+    }
     
+    // This is the critical step. Let's log the error if it fails.
     const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user) return res.status(401).json({ error: 'Invalid or expired token.' });
+    
+    if (error) {
+      console.log("Supabase auth.getUser error:", error.message);
+      return res.status(401).json({ error: 'Invalid or expired token.', details: error.message });
+    }
+
+    if (!user) {
+        console.log("Auth Error: Token was valid but no user was found.");
+        return res.status(401).json({ error: 'User not found for this token.' });
+    }
     
     req.user = user;
     next();
   } catch (error) {
+    console.log("CRITICAL Auth Middleware Crash:", error);
     res.status(500).json({ error: 'Internal server error in auth middleware.' });
   }
 };
@@ -81,26 +100,33 @@ const checkAdminRole = async (req, res, next) => {
 
 // --- PUBLIC ROUTES (No Auth Required) ---
 
-/**
- // cea-hub-backend/index.js
-
-// Add this alongside your other public routes like /api/public/agents
-
-/**
- * @route   GET /api/public/all-agents
- * @desc    Get all agents for the initial map view.
- * @access  Public
- */
 app.get('/api/public/all-agents', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('agents')
       .select('id, name, province, town, photo_url');
-
     if (error) throw error;
     res.json(data);
   } catch (error) {
     console.error('Error fetching all public agents:', error.message);
+    res.status(500).json({ message: 'Error fetching agent data' });
+  }
+});
+
+app.get('/api/public/agents', async (req, res) => {
+  const { province } = req.query;
+  if (!province) {
+    return res.json([]);
+  }
+  try {
+    const { data, error } = await supabase
+      .from('agents')
+      .select('id, name, province, town, about_me, contact_details, email, photo_url')
+      .ilike('province', `%${province}%`);
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching public agents:', error.message);
     res.status(500).json({ message: 'Error fetching agent data' });
   }
 });
@@ -319,7 +345,6 @@ adminRouter.get('/search-agents', async (req, res) => {
     res.json(data);
   } catch (error) { res.status(500).json({ error: 'Agent search failed.', details: error.message }); }
 });
-
 
 // =========================================================
 //  SERVER START
