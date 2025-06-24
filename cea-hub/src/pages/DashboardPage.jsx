@@ -45,7 +45,6 @@ function DashboardPage({ session, userRole, agentInfo, handleLogout }) {
     setError(null);
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-    // We are adding the headers object with the Authorization token to both fetch calls.
     const fetchHeaders = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
@@ -76,8 +75,6 @@ function DashboardPage({ session, userRole, agentInfo, handleLogout }) {
     if (session) {
       fetchDashboardData();
     }
-    // Note: The Jotform script handling has been removed as it was causing issues and is not essential for the core functionality.
-    // If you need it back, we can add it in a more robust way later.
   }, [session]);
 
   const handleRequestPayout = async () => {
@@ -134,7 +131,7 @@ function DashboardPage({ session, userRole, agentInfo, handleLogout }) {
                   <div className="overflow-x-auto">
                     <table className="min-w-full bg-white">
                       <thead><tr><th className="px-4 py-2 text-left text-gray-600 border-b">Rank</th><th className="px-4 py-2 text-left text-gray-600 border-b">Name</th><th className="px-4 py-2 text-left text-gray-600 border-b">Agent ID</th><th className="px-4 py-2 text-left text-gray-600 border-b">Confirmed Sales</th></tr></thead>
-                      <tbody>{topPerformers.map((p) => (<tr key={p.id}><td className="px-4 py-2 font-semibold border-b">{p.rank}</td><td className="px-4 py-2 border-b">{p.name}</td><td className="px-4 py-2 border-b">{p.agent_internal_id}</td><td className="px-4 py-2 border-b">{p.confirmed__sales}</td></tr>))}</tbody>
+                      <tbody>{topPerformers.map((p) => (<tr key={p.id}><td className="px-4 py-2 font-semibold border-b">{p.rank}</td><td className="px-4 py-2 border-b">{p.name}</td><td className="px-4 py-2 border-b">{p.agent_internal_id}</td><td className="px-4 py-2 border-b">{p.confirmed_sales}</td></tr>))}</tbody>
                     </table>
                   </div>
                 ) : (<p className="text-center text-gray-500">No top performers yet.</p>)}
@@ -166,13 +163,32 @@ function DashboardPage({ session, userRole, agentInfo, handleLogout }) {
                 ) : (<p className="text-center text-gray-500">No sales summary data available.</p>)}
               </div>
 
-              {/* Actions Box */}
+              {/* Actions Box --- THIS IS THE CORRECTED SECTION --- */}
               <div className="p-6 bg-white rounded-lg shadow">
                 <h2 className="mb-4 text-lg font-semibold text-gray-800">Actions</h2>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    <Link to="/log-sale" className="block w-full px-4 py-3 text-center text-white rounded-lg shadow-md bg-navy-700 hover:bg-navy-800">Log a New Sale</Link>
-                    <a href="YOUR_WHATSAPP_GROUP_LINK" target="_blank" rel="noopener noreferrer" className="block w-full px-4 py-3 text-center text-white bg-green-500 rounded-lg shadow-md hover:bg-green-600">Join WhatsApp</a>
-                    <a href="YOUR_GOOGLE_DRIVE_LINK" target="_blank" rel="noopener noreferrer" className="block w-full px-4 py-3 text-center text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600">Get Resources</a>
+                  <Link 
+                    to="/log-sale" 
+                    className="block w-full px-4 py-3 text-center text-white rounded-lg shadow-md bg-navy-700 hover:bg-navy-800 transition-colors"
+                  >
+                    Log a New Sale
+                  </Link>
+                  <a 
+                    href="https://chat.whatsapp.com/JIiNG7kM1NzIqJjjSUd41F"
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="block w-full px-4 py-3 text-center text-white bg-green-500 rounded-lg shadow-md hover:bg-green-600 transition-colors"
+                  >
+                    Join WhatsApp
+                  </a>
+                  <a 
+                    href="https://drive.google.com/drive/folders/1XIwuh6TwQQWBfL9kMGAt1WpvzwNvlQZ4?usp=sharing"
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="block w-full px-4 py-3 text-center text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 transition-colors"
+                  >
+                    Get Resources
+                  </a>
                 </div>
               </div>
 
@@ -189,7 +205,7 @@ function DashboardPage({ session, userRole, agentInfo, handleLogout }) {
             </div>
 
             {/* Right Column (Coach) */}
-            <div className="lg:w-1/3">
+            <div className="lg:w-1/d3">
               <div className="p-6 bg-white rounded-lg shadow h-[680px] flex flex-col">
                 <h2 className="mb-4 text-lg font-semibold text-gray-800 shrink-0">Empowerment Emile: Coach</h2>
                 <div className="flex-grow w-full h-full">
